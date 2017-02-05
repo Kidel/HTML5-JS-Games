@@ -4,12 +4,11 @@
 	MIT License
 */
 
-var canvas = document.getElementById("bricksCanvas");
+var canvas = document.getElementById("snakeCanvas");
 var ctx = canvas.getContext("2d");
 
-var BALL_COLOR = "#FFFFFF";
-var PADDLE_COLOR = "#FFFFFF";
-var BRICK_COLOR = "#FF0000";
+var BALL_COLOR = "#FF0000";
+var TAIL_COLOR = "#FFFFFF";
 
 function writeText(text) {
 	ctx.font = "30px Arial";
@@ -35,15 +34,11 @@ var ball = {
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
 	},
-	bounce: function (canvas) {
+	collision: function (canvas) {
 		var hitX = false;
 		for (var i = 0; i < this.physics.length; i++) {
 			hitX = hitX || this.collisionX(this.physics[i]);
 			if (hitX) {
-				if (this.physics[i].canBeDestroyed) {
-					this.physics[i].destroy();
-					this.physics.splice(i, 1);
-				}
 				break;
 			}
 		}
@@ -53,15 +48,17 @@ var ball = {
 		for (var i = 0; i < this.physics.length; i++) {
 			hitY = hitY || this.collisionY(this.physics[i]);
 			if (hitY) {
-				if (this.physics[i].canBeDestroyed) {
-					this.physics[i].destroy();
-					this.physics.splice(i, 1);
-				}
 				break;
 			}
 		}
 		if (this.isOutOfCanvasY(canvas) || hitY)
 			this.velocity.y = -this.velocity.y;
+		if(hitX || hitY){
+			var newX = Math.floor((Math.random() * canvas.width - this.radius * 2) + this.radius);
+			var newY = Math.floor((Math.random() * canvas.height - this.radius * 2) + this.radius);
+			// TODO check if not inside snake
+			this.position = {x: newX, y: newY};
+		}
 	},
 	isOutOfCanvasX: function (canvas) {
 		return this.position.x + this.velocity.x > canvas.width - this.radius + this.colliderDifference || this.position.x + this.velocity.x < this.radius - this.colliderDifference;
@@ -80,22 +77,77 @@ var ball = {
 				(this.position.y + this.radius - this.colliderDifference == something.position.y && this.velocity.y >= 0));
 	},
 	start: function (position, velocity) {
-		this.position = position;
-		this.velocity = velocity;
+		var newX = Math.floor((Math.random() * canvas.width - this.radius * 2) + this.radius);
+		var newY = Math.floor((Math.random() * canvas.height - this.radius * 2) + this.radius);
+		// TODO check if not inside snake
+		this.position = {x: newX, y: newY};
 	},
 	update: function (canvas, canvasContext) {
 		this.draw(canvasContext);
-		this.bounce(canvas);
+		this.collision(canvas);
 		this.applyVelocity();
 	}
 };
 
-var paddle = {
+var snake = {
+	bricks: [],
+	commands: [],
+	control: function (canvas) {
+		if (controls.rightPressed && !this.isOutOfCanvasLeft(canvas)) {
+			this.commands.unshift({ x: 3, y: 0 });
+			this.commands.pop();
+		}
+		else if (controls.leftPressed && !this.isOutOfCanvasRight(canvas)) {
+			this.commands.unshift({ x: -3, y: 0 });
+			this.commands.pop();
+		}
+		else if (controls.upPressed && !this.isOutOfCanvasTop(canvas)) {
+			this.commands.unshift({ x: 0, y: -3 });
+			this.commands.pop();
+		}
+		else if (controls.downPressed && !this.isOutOfCanvasBottom(canvas)) {
+			this.commands.unshift({ x: 0, y: 3 });
+			this.commands.pop();
+		}
+	},
+	isOutOfCanvasLeft: function (canvas) {
+		return this.bricks[0].position.x > canvas.width - this.bricks[0].width;
+	},
+	isOutOfCanvasRight: function (canvas) {
+		return this.bricks[0].position.x < 0;
+	},
+	isOutOfCanvasTop: function (canvas) {
+		return this.bricks[0].position.y < 0;
+	},
+	isOutOfCanvasBottom: function (canvas) {
+		return this.bricks[0].position.y > canvas.height - this.bricks[0].height;
+	},
+	start: function (position, velocity) {
+		for (var i = 0; i < this.bricks.length; i++) {
+			this.commands.unshift(velocity);
+			this.bricks[i].start({ x: position.x - i * this.bricks[i].height, y: position.y - i * this.bricks[i].width }, { x: 0, y: -3 });
+		}
+	},
+	update: function (canvas, canvasContext) {
+		this.control(canvas);
+		for (var i = 0; i < this.bricks.length; i++) {
+			this.bricks[i].velocity = this.commands[i];
+			this.bricks[i].update(canvasContext);
+		}
+	}
+}
+
+snake.bricks.push({
 	height: 10,
-	width: 80,
+	width: 10,
 	position: { x: 0, y: 0 },
-	color: PADDLE_COLOR,
+	velocity: { x: 0, y: 0 },
+	color: TAIL_COLOR,
 	canBeDestroyed: false,
+	move: function () {
+		this.position.x += this.velocity.x;
+		this.position.y += this.velocity.y;
+	},
 	draw: function (canvasContext) {
 		canvasContext.beginPath();
 		canvasContext.rect(this.position.x, this.position.y, this.width, this.height);
@@ -103,123 +155,54 @@ var paddle = {
 		canvasContext.fill();
 		canvasContext.closePath();
 	},
-	control: function (canvas) {
-		if (controls.rightPressed && !this.isOutOfCanvasLeft(canvas)) {
-			this.position.x += 3;
-		}
-		else if (controls.leftPressed && !this.isOutOfCanvasRight(canvas)) {
-			this.position.x -= 3;
-		}
-	},
-	isOutOfCanvasLeft: function (canvas) {
-		return this.position.x > canvas.width - this.width;
-	},
-	isOutOfCanvasRight: function (canvas) {
-		return this.position.x < 0;
-	},
-	start: function (position) {
+	start: function (position, velocity) {
 		this.position = position;
+		this.velocity = velocity;
 	},
-	update: function (canvas, canvasContext) {
-		this.control(canvas);
+	update: function (canvasContext) {
+		this.move();
 		this.draw(canvasContext);
 	}
-}
+});
 
-var bricks = [];
-
-for (var i = 0; i < 16; i++) {
-	bricks.push({
-		height: 15,
-		width: 50,
-		position: { x: 0, y: 0 },
-		color: BRICK_COLOR,
-		status: true,
-		canBeDestroyed: true,
-		destroy: function () {
-			this.status = false;
-		},
-		draw: function (canvasContext) {
-			if (this.status) {
-				canvasContext.beginPath();
-				canvasContext.rect(this.position.x, this.position.y, this.width, this.height);
-				canvasContext.fillStyle = this.color;
-				canvasContext.fill();
-				canvasContext.closePath();
-			}
-		},
-		start: function (position) {
-			this.position = position;
-		},
-		update: function (canvasContext) {
-			this.draw(canvasContext);
-		}
-	});
-}
 
 var controls = {
 	rightPressed: false,
-	leftPressed: false
+	leftPressed: false,
+	upPressed: false,
+	downPressed: false
 }
 
-console.log("listening to left and right");
+console.log("listening to arrows");
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
 function keyDownHandler(e) {
 	if (e.keyCode == 39) {
-		//console.log("pressed right");
 		controls.rightPressed = true;
 	}
 	else if (e.keyCode == 37) {
-		//console.log("pressed left");
 		controls.leftPressed = true;
+	}
+	else if (e.keyCode == 38) {
+		controls.upPressed = true;
+	}
+	else if (e.keyCode == 40) {
+		controls.downPressed = true;
 	}
 }
 function keyUpHandler(e) {
 	if (e.keyCode == 39) {
-		//console.log("released right");
 		controls.rightPressed = false;
 	}
 	else if (e.keyCode == 37) {
-		//console.log("released right");
 		controls.leftPressed = false;
 	}
-}
-
-var game = {
-	stop: false,
-	alertShown: false,
-	isGameOver: function (ball, canvas) {
-		return ball.position.y + ball.velocity.y > canvas.height - ball.radius + ball.colliderDifference;
-	},
-	isGameWon: function (bricks) {
-		var status = false;
-		for (var i = 0; i < bricks.length; i++) {
-			status = status || bricks[i].status;
-			if (status) return false;
-		}
-		return !status;
-	},
-	gameOver: function () {
-		if (!this.alertShown)
-			writeText("GAME OVER");
-		this.alertShown = true;
-	},
-	gameWon: function () {
-		if (!this.alertShown)
-			writeText("YOU WON");
-		this.alertShown = true;
-	},
-	update: function (canvas, ball, bricks) {
-		if (this.isGameOver(ball, canvas)) {
-			this.gameOver();
-			this.stop = true;
-		}
-		else if (this.isGameWon(bricks)) {
-			this.gameWon();
-			this.stop = true;
-		}
+	else if (e.keyCode == 38) {
+		controls.upPressed = false;
+	}
+	else if (e.keyCode == 40) {
+		controls.downPressed = false;
 	}
 }
 
@@ -228,25 +211,15 @@ function clearCanvas(canvasContext) {
 }
 
 function start() {
-	for (var i = 0; i < bricks.length; i++) {
-		bricks[i].start({ x: 5 + (10 + bricks[i].width) * (i / 8 >= 1 ? i - 8 : i), y: bricks[i].height + 20 * (i / 8 >= 1 ? 3 : 1) });
-		ball.physics.push(bricks[i]);
-	}
 	ball.start({ x: canvas.width / 2, y: canvas.height - 30 }, { x: 1, y: -1 });
-	paddle.start({ x: (canvas.width - paddle.width) / 2, y: canvas.height - paddle.height - 10 });
-	ball.physics.push(paddle);
+	snake.start({ x: (canvas.width - snake.bricks[0].width) / 2, y: canvas.height - snake.bricks[0].height - 10 }, { x: 0, y: -3 });
+	ball.physics = snake.bricks;
 }
 
 function update() {
-	if (!game.stop) {
-		clearCanvas(ctx);
-		game.update(canvas, ball, bricks);
-		paddle.update(canvas, ctx);
-		ball.update(canvas, ctx, paddle);
-		for (var i = 0; i < bricks.length; i++) {
-			bricks[i].update(ctx);
-		}
-	}
+	clearCanvas(ctx);
+	snake.update(canvas, ctx);
+	ball.update(canvas, ctx);
 }
 
 start();
