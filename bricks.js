@@ -167,22 +167,18 @@ document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
 function keyDownHandler(e) {
-	if (e.keyCode == 39) {
-		//console.log("pressed right");
+	if (e.keyCode == 39 || e.keyCode == 68) {
 		controls.rightPressed = true;
 	}
-	else if (e.keyCode == 37) {
-		//console.log("pressed left");
+	else if (e.keyCode == 37 || e.keyCode == 65) {
 		controls.leftPressed = true;
 	}
 }
 function keyUpHandler(e) {
-	if (e.keyCode == 39) {
-		//console.log("released right");
+	if (e.keyCode == 39 || e.keyCode == 68) {
 		controls.rightPressed = false;
 	}
-	else if (e.keyCode == 37) {
-		//console.log("released right");
+	else if (e.keyCode == 37 || e.keyCode == 65) {
 		controls.leftPressed = false;
 	}
 }

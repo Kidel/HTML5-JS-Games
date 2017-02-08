@@ -106,7 +106,7 @@ var snake = {
     hit: false,
     height: 10,
     width: 10,
-	command: "right",
+	command: "up",
 	control: function (canvas) {
         if (controls.rightPressed && !(this.command == "left")) {
             this.command = "right";
@@ -213,30 +213,30 @@ document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
 function keyDownHandler(e) {
-	if (e.keyCode == 39) {
+	if (e.keyCode == 39 || e.keyCode == 68) {
 		controls.rightPressed = true;
 	}
-	else if (e.keyCode == 37) {
+	else if (e.keyCode == 37 || e.keyCode == 65) {
 		controls.leftPressed = true;
 	}
-	else if (e.keyCode == 38) {
+	else if (e.keyCode == 38 || e.keyCode ==87) {
 		controls.upPressed = true;
 	}
-	else if (e.keyCode == 40) {
+	else if (e.keyCode == 40 || e.keyCode ==83) {
 		controls.downPressed = true;
 	}
 }
 function keyUpHandler(e) {
-	if (e.keyCode == 39) {
+	if (e.keyCode == 39 || e.keyCode == 68) {
 		controls.rightPressed = false;
 	}
-	else if (e.keyCode == 37) {
+	else if (e.keyCode == 37 || e.keyCode == 65) {
 		controls.leftPressed = false;
 	}
-	else if (e.keyCode == 38) {
+	else if (e.keyCode == 38 || e.keyCode ==87) {
 		controls.upPressed = false;
 	}
-	else if (e.keyCode == 40) {
+	else if (e.keyCode == 40 || e.keyCode ==83) {
 		controls.downPressed = false;
 	}
 }
