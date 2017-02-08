@@ -12,7 +12,7 @@ var PADDLE_COLOR = "#FFFFFF";
 var BRICK_COLOR = "#FF0000";
 
 function writeText(text) {
-	ctx.font = "30px Arial";
+    ctx.font = "30px Monospace";
 	ctx.textAlign = "center"; 
 	ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
