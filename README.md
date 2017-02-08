@@ -6,6 +6,8 @@ Just code kata, this is not meant to be a serious project, but something I do fo
 ## Demo
 Type ```play``` and then the name of the game on [GaetanoBonofiglio.com](http://www.gaetanobonofiglio.com/).
 
+Example:
+
 ![demo](demo.png)
 
 ## Breakout
