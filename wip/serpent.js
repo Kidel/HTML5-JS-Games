@@ -125,7 +125,7 @@ var snake = {
 	start: function (position, velocity) {
 		for (var i = 0; i < this.bricks.length; i++) {
 			this.commands.unshift(velocity);
-			this.bricks[i].start({ x: position.x - i * this.bricks[i].height, y: position.y - i * this.bricks[i].width }, { x: 0, y: -3 });
+			this.bricks[i].start({ x: position.x - (i * this.bricks[i].height), y: position.y - (i * this.bricks[i].width) }, { x: 0, y: -3 });
 		}
 	},
 	update: function (canvas, canvasContext) {
