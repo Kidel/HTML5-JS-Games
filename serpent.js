@@ -110,18 +110,19 @@ var snake = {
     hit: false,
     height: 10,
     width: 10,
-	command: "up",
+    command: "up",
+    using: "up",
 	control: function (canvas) {
-        if (controls.rightPressed && !(this.command == "left")) {
+        if (controls.rightPressed && !(this.using == "left")) {
             this.command = "right";
 		}
-        else if (controls.leftPressed && !(this.command == "right")) {
+        else if (controls.leftPressed && !(this.using == "right")) {
             this.command = "left";
 		}
-        else if (controls.upPressed && !(this.command == "down")) {
+        else if (controls.upPressed && !(this.using == "down")) {
             this.command = "up";
 		}
-        else if (controls.downPressed && !(this.command == "up")) {
+        else if (controls.downPressed && !(this.using == "up")) {
             this.command = "down";
         }
 	},
@@ -150,14 +151,22 @@ var snake = {
         // draw the tail in front of the head
         this.addBrick(this.bricks[0].position);
         this.bricks.pop();
-        if (this.command == "right")
+        if (this.command == "right") {
+            this.using = this.command;
             this.bricks[0].position = { x: this.bricks[0].position.x + this.width, y: this.bricks[0].position.y };
-        else if (this.command == "left")
+        }
+        else if (this.command == "left") {
+            this.using = this.command;
             this.bricks[0].position = { x: this.bricks[0].position.x - this.width, y: this.bricks[0].position.y };
-        else if (this.command == "down")
+        }
+        else if (this.command == "down") {
+            this.using = this.command;
             this.bricks[0].position = { x: this.bricks[0].position.x, y: this.bricks[0].position.y + this.height };
-        else if (this.command == "up")
+        }
+        else if (this.command == "up") {
+            this.using = this.command;
             this.bricks[0].position = { x: this.bricks[0].position.x, y: this.bricks[0].position.y - this.height };
+        }
     },
     start: function (position) {
         for (var i = 0; i < 3; i++)
