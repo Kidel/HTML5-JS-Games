@@ -13,8 +13,14 @@ var BRICK_COLORS = ["#c84848", "#c66c3a", "#a2a22a", "#48a048", "#4248c8"];
 
 function writeText(text) {
     ctx.font = "30px Monospace";
-	ctx.textAlign = "center"; 
-	ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+}
+
+function writeSubText(text) {
+    ctx.font = "20px Monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 30);
 }
 
 var ball = {
@@ -198,13 +204,17 @@ var game = {
 		return !status;
 	},
 	gameOver: function () {
-		if (!this.alertShown)
-			writeText("GAME OVER");
+        if (!this.alertShown) {
+            writeText("GAME OVER");
+            writeSubText("click to reload")
+        }
 		this.alertShown = true;
 	},
 	gameWon: function () {
-		if (!this.alertShown)
-			writeText("YOU WON");
+        if (!this.alertShown) {
+            writeText("YOU WON");
+            writeSubText("click to reload")
+        }
 		this.alertShown = true;
 	},
 	update: function (canvas, ball, bricks) {
@@ -248,3 +258,7 @@ function update() {
 
 start();
 setInterval(update, 5);
+
+function reloadGame() {
+    if (game.stop) location.reload(); 
+}

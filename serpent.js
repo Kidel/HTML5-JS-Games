@@ -19,7 +19,7 @@ var rect = {
     position: { x: 10, y: 10 },
     draw: function (canvas, canvasContext) {
         canvasContext.beginPath();
-        canvasContext.rect(this.position.x, 0, 1, canvas.height);
+        canvasContext.rect(this.position.x - 1, 0, 1, canvas.height);
         canvasContext.fillStyle = this.color;
         canvasContext.fill();
         canvasContext.closePath();
@@ -31,7 +31,7 @@ var rect = {
         canvasContext.closePath();
 
         canvasContext.beginPath();
-        canvasContext.rect(0, this.position.y, canvas.width, 1);
+        canvasContext.rect(0, this.position.y - 1, canvas.width, 1);
         canvasContext.fillStyle = this.color;
         canvasContext.fill();
         canvasContext.closePath();
@@ -59,6 +59,12 @@ function writePoints(text) {
     ctx.fillText(text, 12, canvas.height);
 }
 
+function writeSubText(text) {
+    ctx.font = "20px Monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 30);
+}
+
 var initialSeconds = Math.floor(Date.now() / 1000)
 
 function writeTime() {
@@ -76,9 +82,7 @@ var food = {
     draw: function (canvasContext) {
         canvasContext.beginPath();
         canvasContext.rect(this.position.x + 1, this.position.y + 1, this.width - 2, this.height - 2);
-        canvasContext.strokeRect(this.position.x, this.position.y, this.width, this.height);
         canvasContext.fillStyle = this.color;
-        canvasContext.strokeStyle = STROKE_COLOR;
         canvasContext.fill();
         canvasContext.closePath();
     },
@@ -179,9 +183,7 @@ var snake = {
             draw: function (canvasContext) {
                 canvasContext.beginPath();
                 canvasContext.rect(this.position.x + 1, this.position.y + 1, this.width - 2, this.height - 2);
-                canvasContext.strokeRect(this.position.x, this.position.y, this.width, this.height);
                 canvasContext.fillStyle = this.color;
-                canvasContext.strokeStyle = STROKE_COLOR;
                 canvasContext.fill();
                 canvasContext.closePath();
             },
@@ -251,13 +253,17 @@ var game = {
         return bricks.length >= canvas.height * canvas.width;
     },
     gameOver: function () {
-        if (!this.alertShown)
+        if (!this.alertShown) {
             writeText("GAME OVER");
+            writeSubText("click to reload")
+        }
         this.alertShown = true;
     },
     gameWon: function () {
-        if (!this.alertShown)
+        if (!this.alertShown) {
             writeText("YOU WON");
+            writeSubText("click to reload")
+        }
         this.alertShown = true;
     },
     update: function (bricks) {
@@ -308,3 +314,7 @@ function realTimeUpdate() {
 start();
 setInterval(update, 80);
 setInterval(realTimeUpdate, 5);
+
+function reloadGame() {
+    if (game.stop) location.reload();
+}
