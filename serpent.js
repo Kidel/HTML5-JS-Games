@@ -228,11 +228,11 @@ function keyUpHandler(e) {
 var game = {
     stop: false,
     alertShown: false,
-    isGameOver: function () {
+    isGameOver: function (sname) {
         return snake.hit;
     },
-    isGameWon: function (bricks) {
-        return bricks.length >= canvas.height * canvas.width;
+    isGameWon: function (bricks, rect) {
+        return bricks.length >= rect.height * rect.width;
     },
     gameOver: function () {
         if (!this.alertShown) {
@@ -250,12 +250,12 @@ var game = {
         }
         this.alertShown = true;
     },
-    update: function (bricks) {
-        if (this.isGameOver()) {
+    update: function (snake, bricks, rect) {
+        if (this.isGameOver(snake)) {
             this.gameOver();
             this.stop = true;
         }
-        else if (this.isGameWon(bricks)) {
+        else if (this.isGameWon(bricks, rect)) {
             this.gameWon();
             this.stop = true;
         }
@@ -284,7 +284,7 @@ function update() {
         food.update(canvas, ctx);
         writePoints("POINTS: " + points);
         writeTime();
-        game.update(snake.bricks);
+        game.update(snake, snake.bricks, rect);
     }
 }
 
