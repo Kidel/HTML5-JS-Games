@@ -8,8 +8,8 @@ var canvas = document.getElementById("bricksCanvas");
 var ctx = canvas.getContext("2d");
 
 var BALL_COLOR = "#FFFFFF";
-var PADDLE_COLOR = "#FFFFFF";
-var BRICK_COLOR = "#FF0000";
+var PADDLE_COLOR = "#8e8e8e";
+var BRICK_COLORS = ["#c84848", "#c66c3a", "#a2a22a", "#48a048", "#4248c8"];
 
 function writeText(text) {
     ctx.font = "30px Monospace";
@@ -128,12 +128,12 @@ var paddle = {
 
 var bricks = [];
 
-for (var i = 0; i < 16; i++) {
+for (var i = 0; i < 40; i++) {
 	bricks.push({
-		height: 15,
+		height: 12,
 		width: 50,
 		position: { x: 0, y: 0 },
-		color: BRICK_COLOR,
+		color: BRICK_COLORS[0],
 		status: true,
 		canBeDestroyed: true,
 		destroy: function () {
@@ -224,8 +224,9 @@ function clearCanvas(canvasContext) {
 }
 
 function start() {
-	for (var i = 0; i < bricks.length; i++) {
-		bricks[i].start({ x: 5 + (10 + bricks[i].width) * (i / 8 >= 1 ? i - 8 : i), y: bricks[i].height + 20 * (i / 8 >= 1 ? 3 : 1) });
+    for (var i = 0; i < bricks.length; i++) {
+        bricks[i].color = BRICK_COLORS[Math.floor(i / 8) % BRICK_COLORS.length];
+        bricks[i].start({ x: 5 + (10 + bricks[i].width) * (i - 8 * Math.floor(i / 8)), y: bricks[i].height + 20 * (1 + Math.floor(i / 8)) });
 		ball.physics.push(bricks[i]);
 	}
 	ball.start({ x: canvas.width / 2, y: canvas.height - 30 }, { x: 1, y: -1 });
