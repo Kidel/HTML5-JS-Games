@@ -11,7 +11,10 @@ Example:
 ![demo](demo.png)
 
 ## Breakout
-![capture](capture.png)
+![capture](capture1.png)
 
 ## Snake
 ![capture](capture2.png)
+
+## Pong
+![capture](capture3.png)

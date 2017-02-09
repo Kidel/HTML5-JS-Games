@@ -158,32 +158,6 @@ for (var i = 0; i < 40; i++) {
 	});
 }
 
-var controls = {
-	rightPressed: false,
-	leftPressed: false
-}
-
-console.log("listening to left and right");
-document.addEventListener("keydown", keyDownHandler);
-document.addEventListener("keyup", keyUpHandler);
-
-function keyDownHandler(e) {
-	if (e.keyCode == 39 || e.keyCode == 68) {
-		controls.rightPressed = true;
-	}
-	else if (e.keyCode == 37 || e.keyCode == 65) {
-		controls.leftPressed = true;
-	}
-}
-function keyUpHandler(e) {
-	if (e.keyCode == 39 || e.keyCode == 68) {
-		controls.rightPressed = false;
-	}
-	else if (e.keyCode == 37 || e.keyCode == 65) {
-		controls.leftPressed = false;
-	}
-}
-
 var game = {
 	stop: false,
 	alertShown: false,
