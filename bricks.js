@@ -11,18 +11,6 @@ var BALL_COLOR = "#FFFFFF";
 var PADDLE_COLOR = "#8e8e8e";
 var BRICK_COLORS = ["#c84848", "#c66c3a", "#a2a22a", "#48a048", "#4248c8"];
 
-function writeText(text) {
-    ctx.font = "30px Monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-}
-
-function writeSubText(text) {
-    ctx.font = "20px Monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 30);
-}
-
 var ball = {
 	position: { x: 0, y: 0 },
 	velocity: { x: 0, y: 0 },
@@ -42,8 +30,9 @@ var ball = {
 		this.position.y += this.velocity.y;
 	},
 	bounce: function (canvas) {
+		var i = 0
 		var hitX = false;
-		for (var i = 0; i < this.physics.length; i++) {
+		for (i = 0; i < this.physics.length; i++) {
 			hitX = hitX || this.collisionX(this.physics[i]);
 			if (hitX) {
 				if (this.physics[i].canBeDestroyed) {
@@ -53,21 +42,27 @@ var ball = {
 				break;
 			}
 		}
-		if (this.isOutOfCanvasX(canvas) || hitX)
+		var oocX = this.isOutOfCanvasX(canvas);
+		if (oocX || hitX) 
 			this.velocity.x = -this.velocity.x;
+
 		var hitY = false;
-		for (var i = 0; i < this.physics.length; i++) {
-			hitY = hitY || this.collisionY(this.physics[i]);
+		var j = 0
+		for (j = 0; j < this.physics.length; j++) {
+			hitY = hitY || this.collisionY(this.physics[j]);
 			if (hitY) {
-				if (this.physics[i].canBeDestroyed) {
-					this.physics[i].destroy();
-					this.physics.splice(i, 1);
+				if (this.physics[j].canBeDestroyed) {
+					this.physics[j].destroy();
+					this.physics.splice(j, 1);
 				}
 				break;
 			}
 		}
-		if (this.isOutOfCanvasY(canvas) || hitY)
+		var oocY = this.isOutOfCanvasY(canvas);
+		if (oocY || hitY)
 			this.velocity.y = -this.velocity.y;
+		if(hitX || hitY) j==0 || i==0 ? playSound('soft_hit') : playSound('hit');
+		if(oocX || oocY) playSound('soft_hit');
 	},
 	isOutOfCanvasX: function (canvas) {
 		return this.position.x + this.velocity.x > canvas.width - this.radius + this.colliderDifference || this.position.x + this.velocity.x < this.radius - this.colliderDifference;
@@ -206,17 +201,19 @@ var game = {
 	gameOver: function () {
         if (!this.alertShown) {
             writeText("GAME OVER");
-            writeSubText("click to reload")
+            writeSubText("click to reload");
+            playSound('gameover');
         }
-		this.alertShown = true;
-	},
-	gameWon: function () {
+        this.alertShown = true;
+    },
+    gameWon: function () {
         if (!this.alertShown) {
             writeText("YOU WON");
-            writeSubText("click to reload")
+            writeSubText("click to reload");
+            playSound('win');
         }
-		this.alertShown = true;
-	},
+        this.alertShown = true;
+    },
 	update: function (canvas, ball, bricks) {
 		if (this.isGameOver(ball, canvas)) {
 			this.gameOver();
@@ -229,11 +226,8 @@ var game = {
 	}
 }
 
-function clearCanvas(canvasContext) {
-	canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 function start() {
+	ball.physics.push(paddle);
     for (var i = 0; i < bricks.length; i++) {
         bricks[i].color = BRICK_COLORS[Math.floor(i / 8) % BRICK_COLORS.length];
         bricks[i].start({ x: 5 + (10 + bricks[i].width) * (i - 8 * Math.floor(i / 8)), y: bricks[i].height + 20 * (1 + Math.floor(i / 8)) });
@@ -241,12 +235,11 @@ function start() {
 	}
 	ball.start({ x: canvas.width / 2, y: canvas.height - 30 }, { x: 1, y: -1 });
 	paddle.start({ x: (canvas.width - paddle.width) / 2, y: canvas.height - paddle.height - 10 });
-	ball.physics.push(paddle);
 }
 
 function update() {
 	if (!game.stop) {
-		clearCanvas(ctx);
+		clearCanvas(canvas, ctx);
 		game.update(canvas, ball, bricks);
 		paddle.update(canvas, ctx);
 		ball.update(canvas, ctx, paddle);

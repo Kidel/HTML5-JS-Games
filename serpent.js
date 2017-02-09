@@ -47,33 +47,6 @@ var rect = {
     }
 };
 
-function writeText(text) {
-    ctx.font = "30px Monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-}
-
-function writePoints(text) {
-    ctx.font = "12px Monospace";
-    ctx.textAlign = "left";
-    ctx.fillText(text, 12, canvas.height);
-}
-
-function writeSubText(text) {
-    ctx.font = "20px Monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 30);
-}
-
-var initialSeconds = Math.floor(Date.now() / 1000)
-
-function writeTime() {
-    var seconds = Math.floor(Date.now() / 1000) - initialSeconds;
-    ctx.font = "12px Monospace";
-    ctx.textAlign = "right";
-    ctx.fillText(seconds, canvas.width - 12, canvas.height);
-}
-
 var food = {
 	position: { x: 0, y: 0 },
     height: 10,
@@ -101,7 +74,7 @@ var food = {
     }
 };
 
-function collisionDetection(head, food) {
+function foodCollisionDetection(head, food) {
     return (head.position.x == food.position.x) && (head.position.y == food.position.y);
 }
 
@@ -264,14 +237,16 @@ var game = {
     gameOver: function () {
         if (!this.alertShown) {
             writeText("GAME OVER");
-            writeSubText("click to reload")
+            writeSubText("click to reload");
+            playSound('gameover');
         }
         this.alertShown = true;
     },
     gameWon: function () {
         if (!this.alertShown) {
             writeText("YOU WON");
-            writeSubText("click to reload")
+            writeSubText("click to reload");
+            playSound('win');
         }
         this.alertShown = true;
     },
@@ -287,10 +262,6 @@ var game = {
     }
 }
 
-function clearCanvas(canvasContext) {
-	canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 function start() {
     food.start(canvas, rect);
     snake.start({ x: Math.floor(((canvas.width - snake.width) / 2) / 10) * 10, y: Math.floor(canvas.height / 10) * 10 - snake.height - 10 });
@@ -301,10 +272,11 @@ var points = 0;
 
 function update() {
     if (!game.stop) {
-        clearCanvas(ctx);
+        clearCanvas(canvas, ctx);
         rect.update(canvas, ctx);
         snake.update(canvas, ctx, rect);
-        if (collisionDetection(snake.bricks[0], food)) {
+        if (foodCollisionDetection(snake.bricks[0], food)) {
+            playSound('bip');
             food.newPosition(canvas, rect);
             snake.addBrick(snake.bricks[snake.bricks.length - 1].position, true);
             ++points;
